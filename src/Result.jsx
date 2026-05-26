@@ -17,6 +17,18 @@ function Result() {
   const subjects = studentData?.subjects ?? []
   const totals = studentData?.totals ?? []
 
+  const getDisplayValue = (value) => {
+    if (value == null || value === '') {
+      return '—'
+    }
+
+    if (typeof value === 'object') {
+      return value.label || value.name || value.title || value.value || '—'
+    }
+
+    return value
+  }
+
   // التحقق من صحة الوصول إلى الصفحة
   useEffect(() => {
     const authenticated = sessionStorage.getItem('authenticated')
@@ -106,16 +118,8 @@ function Result() {
     return { studentTotal, fullTotal }
   }
 
-  const academicYearLabel = studentData?.academic_year?.label || studentData?.academic_year || '—'
-  const sectionLabel =
-    studentData?.section?.name ||
-    studentData?.section?.label ||
-    studentData?.section ||
-    studentData?.enrollments?.[0]?.section ||
-    studentData?.enrollments?.[0]?.section_name ||
-    studentData?.enrollment?.section ||
-    studentData?.enrollment?.section_name ||
-    '—'
+  const academicYearLabel = getDisplayValue(studentData?.academic_year)
+  const gradeLabel = getDisplayValue(studentData?.grade)
 
   if (loading) {
     return (
@@ -167,10 +171,10 @@ function Result() {
         </header>
 
         <section className="student-info">
-          <div><strong>الاسم الكامل:</strong> {studentData.full_name || '—'}</div>
-          <div><strong>الرقم الوطني:</strong> {studentData.national_id || national}</div>
+          <div><strong>الاسم الكامل:</strong> {getDisplayValue(studentData.full_name)}</div>
+          <div><strong>الرقم الوطني:</strong> {getDisplayValue(studentData.national_id || national)}</div>
           <div><strong>السنة الدراسية:</strong> {academicYearLabel}</div>
-          <div><strong>الصف:</strong> {studentData.grade?.name || '—'}</div>
+          <div><strong>الصف:</strong> {gradeLabel}</div>
         </section>
 
         <section className="table-wrap">
@@ -179,7 +183,7 @@ function Result() {
               <tr>
                 <th rowSpan={2} className="subject-col">المادة</th>
                 {periods.map((period) => (
-                  <th key={period.id} colSpan={2}>{period.name}</th>
+                  <th key={period.id} colSpan={2}>{getDisplayValue(period.name)}</th>
                 ))}
               </tr>
               <tr>
@@ -194,7 +198,7 @@ function Result() {
             <tbody>
               {subjects.map((subject) => (
                 <tr key={subject.subject_id}>
-                  <td className="subject-name">{subject.subject_name}</td>
+                  <td className="subject-name">{getDisplayValue(subject.subject_name)}</td>
                   {periods.map((period) => {
                     const gradeData = subject.periods?.find((p) => p.period_id === period.id)
                     const studentMark = gradeData?.student_mark
