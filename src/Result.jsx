@@ -1,6 +1,6 @@
 import React from 'react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
-import Logo from './assets/logo.png'
+const Logo = '/assets/logo.png'
 import './App.css'
 import { useEffect, useState } from 'react'
 

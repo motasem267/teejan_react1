@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import Logo from './assets/logo.png'
+const Logo = '/assets/logo.png'
 import './App.css'
 
 function Login() {

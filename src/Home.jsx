@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Logo from './assets/logo.png'
+const Logo = '/assets/logo.png'
 import photo1 from './assets/images/photo1.jpg'
 import photo2 from './assets/images/photo2.jpg'
 import photo3 from './assets/images/photo3.jpg'
