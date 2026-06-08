@@ -222,29 +222,45 @@ function Result() {
                 </tr>
               ))}
               {periods.length > 0 && (
-                <tr className="total-row">
-                  <td className="subject-name"><strong>المجموع</strong></td>
-                  {periods.map((period) => {
-                    const { studentTotal, fullTotal } = getPeriodTotal(period.id)
+                <>
+                  <tr className="total-row">
+                    <td className="subject-name"><strong>المجموع</strong></td>
+                    {periods.map((period) => {
+                      const { studentTotal, fullTotal } = getPeriodTotal(period.id)
 
-                    return (
-                      <React.Fragment key={`total-${period.id}`}>
-                        <td>
-                          <span className="cell-text"><strong>{studentTotal}</strong></span>
+                      return (
+                        <React.Fragment key={`total-${period.id}`}>
+                          <td>
+                            <span className="cell-text"><strong>{studentTotal}</strong></span>
+                          </td>
+                          <td>
+                            <span className="cell-text"><strong>{fullTotal}</strong></span>
+                          </td>
+                        </React.Fragment>
+                      )
+                    })}
+                  </tr>
+                  <tr className="percentage-row">
+                    <td className="subject-name"><strong>النسبة</strong></td>
+                    {periods.map((period) => {
+                      const { studentTotal, fullTotal } = getPeriodTotal(period.id)
+                      const pct = fullTotal > 0 ? Math.round((studentTotal / fullTotal) * 100) : 0
+
+                      return (
+                        <td key={`pct-${period.id}`} colSpan={2}>
+                          <strong>{pct}%</strong>
                         </td>
-                        <td>
-                          <span className="cell-text"><strong>{fullTotal}</strong></span>
-                        </td>
-                      </React.Fragment>
-                    )
-                  })}
-                </tr>
+                      )
+                    })}
+                  </tr>
+                </>
               )}
             </tbody>
           </table>
         </section>
 
         <div className="result-actions">
+          <button className="print-btn" onClick={() => window.print()}>طباعة النتيجة</button>
           <Link to="/login" className="back-link">عودة</Link>
         </div>
       </div>
