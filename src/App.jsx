@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-const Logo = '/assets/logo.png'
 import './App.css'
+
+const Logo = '/assets/logo.png'
 
 function Login() {
   const [national, setNational] = useState('')

@@ -1,8 +1,9 @@
 import React from 'react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
-const Logo = '/assets/logo.png'
 import './App.css'
 import { useEffect, useState } from 'react'
+
+const Logo = '/assets/logo.png'
 
 function Result() {
   const { search } = useLocation()
