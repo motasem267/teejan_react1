@@ -1,166 +1,90 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Home.css';
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import './Home.css'
 
-const Logo = '/assets/logo.png'
-const photo1 = '/assets/photo1.jpg'
-const photo2 = '/assets/photo2.jpg'
-const photo3 = '/assets/photo3.jpg'
-const photo4 = '/assets/photo4.jpg'
-const photo5 = '/assets/photo5.jpg'
-const photo6 = '/assets/photo6.jpg'
+const LOGO = '/assets/logo.png'
+const PHOTOS = [
+  '/assets/photo1.jpg',
+  '/assets/photo2.jpg',
+  '/assets/photo3.jpg',
+  '/assets/photo4.jpg',
+  '/assets/photo5.jpg',
+  '/assets/photo6.jpg',
+]
 
-function Home() {
-  const navigate = useNavigate();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [activeSection, setActiveSection] = useState('home');
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const LEVELS = [
+  {
+    id: 1,
+    title: 'رياض الأطفال',
+    icon: '🎨',
+    desc: 'مرحلة تأسيسية لتنمية مهارات الطفل الإبداعية والاجتماعية من خلال اللعب والأنشطة التفاعلية',
+    tags: ['تعليم تفاعلي', 'أنشطة فنية', 'تنمية المهارات'],
+    color: '#FF6B9D',
+  },
+  {
+    id: 2,
+    title: 'المرحلة الابتدائية',
+    icon: '📚',
+    desc: 'بناء الأساس العلمي القوي وتطوير مهارات القراءة والكتابة والحساب بطرق تعليمية حديثة',
+    tags: ['منهج شامل', 'تعليم تفاعلي', 'متابعة مستمرة'],
+    color: '#4ECDC4',
+  },
+  {
+    id: 3,
+    title: 'المرحلة الإعدادية',
+    icon: '🎓',
+    desc: 'مرحلة تطوير القدرات العلمية والفكرية وإعداد الطلاب للمراحل المتقدمة من التعليم',
+    tags: ['برامج متقدمة', 'تحضير للثانوية', 'تطوير المهارات'],
+    color: '#95E1D3',
+  },
+]
 
-  const images = [
-    photo1,
-    photo2,
-    photo3,
-    photo4,
-    photo5,
-    photo6
-  ];
+export default function Home() {
+  const navigate = useNavigate()
+  const [photoIdx, setPhotoIdx] = useState(0)
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    const onScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener('scroll', onScroll)
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+    const timer = setInterval(() => {
+      setPhotoIdx(i => (i + 1) % PHOTOS.length)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [])
 
-  const scrollToSection = (sectionId) => {
-    setActiveSection(sectionId);
-    setMobileMenuOpen(false);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
-  const goToResults = () => {
-    navigate('/login');
-  };
-
-  const openGoogleMaps = () => {
-    window.open('https://maps.app.goo.gl/LxSQUJMdYNvt5FMm8', '_blank');
-  };
-
-  const educationLevels = [
-    {
-      id: 1,
-      title: 'رياض الأطفال',
-      icon: '🎨',
-      description: 'مرحلة تأسيسية لتنمية مهارات الطفل الإبداعية والاجتماعية من خلال اللعب والأنشطة التفاعلية',
-      features: ['تعليم تفاعلي', 'أنشطة فنية', 'تنمية المهارات'],
-      color: '#FF6B9D'
-    },
-    {
-      id: 2,
-      title: 'المرحلة الابتدائية',
-      icon: '📚',
-      description: 'بناء الأساس العلمي القوي وتطوير مهارات القراءة والكتابة والحساب بطرق تعليمية حديثة',
-      features: ['منهج شامل', 'تعليم تفاعلي', 'متابعة مستمرة'],
-      color: '#4ECDC4'
-    },
-    {
-      id: 3,
-      title: 'المرحلة الإعدادية',
-      icon: '🎓',
-      description: 'مرحلة تطوير القدرات العلمية والفكرية وإعداد الطلاب للمراحل المتقدمة من التعليم',
-      features: ['برامج متقدمة', 'تحضير للثانوية', 'تطوير المهارات'],
-      color: '#95E1D3'
-    }
-  ];
+  const scrollTo = (id) => {
+    setMenuOpen(false)
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
-    <div className="home-container">
-      {/* Animated Background */}
-      <div className="animated-bg">
-        <div className="shape shape1"></div>
-        <div className="shape shape2"></div>
-        <div className="shape shape3"></div>
-        <div className="shape shape4"></div>
-        <div className="shape shape5"></div>
-      </div>
-
-      {/* Navigation Bar */}
-      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-        <div className="nav-container">
-          <div className="nav-logo">
-            <img src={Logo} alt="Logo" className="logo-img" />
-            <span className="logo-text">تيجان العلم</span>
+    <div className="home" dir="rtl">
+      {/* Navbar */}
+      <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
+        <div className="nav-inner">
+          <div className="nav-brand">
+            <img src={LOGO} alt="شعار المدرسة" className="nav-logo" />
+            <span>تيجان العلم</span>
           </div>
-          
-          <button 
-            className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
+
+          <button className="burger" onClick={() => setMenuOpen(o => !o)} aria-label="القائمة">
+            <span /><span /><span />
           </button>
 
-          <ul className={`nav-menu ${mobileMenuOpen ? 'active' : ''}`}>
+          <ul className={`nav-links${menuOpen ? ' open' : ''}`}>
+            <li><a href="#home" onClick={() => scrollTo('home')}>الرئيسية</a></li>
+            <li><a href="#about" onClick={() => scrollTo('about')}>من نحن</a></li>
+            <li><a href="#levels" onClick={() => scrollTo('levels')}>المراحل التعليمية</a></li>
+            <li><a href="#gallery" onClick={() => scrollTo('gallery')}>أطفالنا</a></li>
+            <li><a href="#contact" onClick={() => scrollTo('contact')}>تواصل معنا</a></li>
             <li>
-              <a 
-                href="#home" 
-                className={activeSection === 'home' ? 'active' : ''}
-                onClick={() => scrollToSection('home')}
-              >
-                الصفحة الرئيسية
-              </a>
-            </li>
-            <li>
-              <a 
-                href="#about" 
-                className={activeSection === 'about' ? 'active' : ''}
-                onClick={() => scrollToSection('about')}
-              >
-                من نحن
-              </a>
-            </li>
-            <li>
-              <a 
-                href="#levels" 
-                className={activeSection === 'levels' ? 'active' : ''}
-                onClick={() => scrollToSection('levels')}
-              >
-                المراحل التعليمية
-              </a>
-            </li>
-            <li>
-              <a 
-                href="#children" 
-                className={activeSection === 'children' ? 'active' : ''}
-                onClick={() => scrollToSection('children')}
-              >
-                أطفالنا
-              </a>
-            </li>
-            <li>
-              <a 
-                href="#contact" 
-                className={activeSection === 'contact' ? 'active' : ''}
-                onClick={() => scrollToSection('contact')}
-              >
-                تواصل معنا
-              </a>
-            </li>
-            <li>
-              <button onClick={goToResults} className="nav-results-btn">
+              <button className="nav-results-btn" onClick={() => navigate('/login')}>
                 النتائج
               </button>
             </li>
@@ -168,214 +92,192 @@ function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section id="home" className="hero-section">
-        <div className="hero-content">
-          <div className="hero-badge">✨ مرحباً بكم في</div>
-          <h1 className="hero-title">
-            <span className="gradient-text">مدرسة تيجان العلم</span>
-          </h1>
-          <p className="hero-subtitle">نبني مستقبل أطفالنا بالعلم والمعرفة</p>
-          <div className="hero-buttons">
-            <button onClick={() => scrollToSection('about')} className="btn-primary">
-              اكتشف المزيد
-            </button>
-            <button onClick={() => scrollToSection('contact')} className="btn-secondary">
-              تواصل معنا
-            </button>
+      {/* Hero */}
+      <section id="home" className="hero">
+        <div className="hero-shapes">
+          <div className="shape s1" /><div className="shape s2" />
+          <div className="shape s3" /><div className="shape s4" />
+        </div>
+        <div className="hero-body">
+          <span className="badge">✨ مرحباً بكم في</span>
+          <h1>مدرسة تيجان العلم</h1>
+          <p>نبني مستقبل أطفالنا بالعلم والمعرفة</p>
+          <div className="hero-btns">
+            <button onClick={() => scrollTo('about')} className="btn-gold">اكتشف المزيد</button>
+            <button onClick={() => scrollTo('contact')} className="btn-outline">تواصل معنا</button>
           </div>
         </div>
-        <div className="hero-decoration">
-          <div className="floating-icon icon1">📚</div>
-          <div className="floating-icon icon2">✏️</div>
-          <div className="floating-icon icon3">🎨</div>
-          <div className="floating-icon icon4">🌟</div>
+        <div className="floating-icons" aria-hidden="true">
+          <span className="fi fi1">📚</span>
+          <span className="fi fi2">✏️</span>
+          <span className="fi fi3">🎨</span>
+          <span className="fi fi4">🌟</span>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="about-section">
-        <div className="section-container">
-          <div className="section-header">
-            <span className="section-badge">من نحن</span>
-            <h2 className="section-title">مدرسة تيجان العلم</h2>
+      {/* About */}
+      <section id="about" className="section">
+        <div className="container">
+          <div className="section-head">
+            <span className="tag">من نحن</span>
+            <h2>مدرسة تيجان العلم</h2>
           </div>
-          <div className="about-grid">
-            <div className="about-card">
-              <div className="about-icon">🎯</div>
+          <div className="cards-grid">
+            <div className="card">
+              <div className="card-icon">🎯</div>
               <h3>رؤيتنا</h3>
               <p>نسعى لأن نكون منارة التعليم في ليبيا، نبني جيلاً متعلماً ومبدعاً قادراً على صنع المستقبل</p>
             </div>
-            <div className="about-card">
-              <div className="about-icon">💡</div>
+            <div className="card">
+              <div className="card-icon">💡</div>
               <h3>رسالتنا</h3>
               <p>تقديم تعليم متميز في بيئة آمنة ومحفزة للإبداع، مع التركيز على تنمية المهارات والقيم الأخلاقية</p>
             </div>
-            <div className="about-card">
-              <div className="about-icon">⭐</div>
+            <div className="card">
+              <div className="card-icon">⭐</div>
               <h3>قيمنا</h3>
-              <p>الالتزام، التميز، الإبداع، الاحترام، والتعاون - قيم نغرسها في نفوس أبنائنا الطلاب</p>
+              <p>الالتزام، التميز، الإبداع، الاحترام، والتعاون — قيم نغرسها في نفوس أبنائنا الطلاب</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Education Levels Section */}
-      <section id="levels" className="levels-section">
-        <div className="section-container">
-          <div className="section-header">
-            <span className="section-badge">التعليم</span>
-            <h2 className="section-title">المراحل التعليمية</h2>
-            <p className="section-description">نوفر تعليماً متكاملاً لجميع المراحل الدراسية</p>
+      {/* Education Levels */}
+      <section id="levels" className="section bg-soft">
+        <div className="container">
+          <div className="section-head">
+            <span className="tag">التعليم</span>
+            <h2>المراحل التعليمية</h2>
+            <p>نوفر تعليماً متكاملاً لجميع المراحل الدراسية</p>
           </div>
-          <div className="levels-grid">
-            {educationLevels.map((level, index) => (
-              <div 
-                key={level.id} 
-                className="level-card"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                <div className="level-icon" style={{ backgroundColor: level.color }}>
-                  {level.icon}
+          <div className="cards-grid">
+            {LEVELS.map(lvl => (
+              <div key={lvl.id} className="level-card">
+                <div className="level-icon" style={{ background: lvl.color }}>{lvl.icon}</div>
+                <h3>{lvl.title}</h3>
+                <p>{lvl.desc}</p>
+                <div className="tags">
+                  {lvl.tags.map(t => <span key={t} className="tag-pill">✓ {t}</span>)}
                 </div>
-                <h3 className="level-title">{level.title}</h3>
-                <p className="level-description">{level.description}</p>
-                <div className="level-features">
-                  {level.features.map((feature, idx) => (
-                    <span key={idx} className="feature-tag">
-                      ✓ {feature}
-                    </span>
-                  ))}
-                </div>
-                <div className="level-decoration" style={{ backgroundColor: level.color }}></div>
+                <div className="level-bar" style={{ background: lvl.color }} />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Children Gallery Section */}
-      <section id="children" className="gallery-section">
-        <div className="section-container">
-          <div className="section-header">
-            <span className="section-badge">معرض الصور</span>
-            <h2 className="section-title">أطفالنا</h2>
-            <p className="section-description">لحظات من الفرح والتعلم مع طلابنا الأعزاء</p>
+      {/* Photo Gallery */}
+      <section id="gallery" className="section">
+        <div className="container">
+          <div className="section-head">
+            <span className="tag">معرض الصور</span>
+            <h2>أطفالنا</h2>
+            <p>لحظات من الفرح والتعلم مع طلابنا الأعزاء</p>
           </div>
-          <div className="gallery-wrapper">
+          <div className="gallery">
             <div className="gallery-main">
-              <img 
-                src={images[currentImageIndex]} 
-                alt="أطفال مدرسة تيجان العلم" 
-                className="gallery-image"
-              />
-              <div className="gallery-overlay">
-                <div className="image-counter">
-                  {currentImageIndex + 1} / {images.length}
-                </div>
-              </div>
+              <img src={PHOTOS[photoIdx]} alt={`صورة ${photoIdx + 1}`} />
+              <span className="gallery-counter">{photoIdx + 1} / {PHOTOS.length}</span>
             </div>
-            <div className="gallery-thumbnails">
-              {images.map((img, index) => (
-                <div 
-                  key={index}
-                  className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
-                  onClick={() => setCurrentImageIndex(index)}
+            <div className="gallery-thumbs">
+              {PHOTOS.map((src, i) => (
+                <button
+                  key={i}
+                  className={`thumb${i === photoIdx ? ' active' : ''}`}
+                  onClick={() => setPhotoIdx(i)}
+                  aria-label={`صورة ${i + 1}`}
                 >
-                  <img src={img} alt={`صورة ${index + 1}`} />
-                </div>
+                  <img src={src} alt={`صورة ${i + 1}`} />
+                </button>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="contact-section">
-        <div className="section-container">
-          <div className="section-header">
-            <span className="section-badge">اتصل بنا</span>
-            <h2 className="section-title">تواصل معنا</h2>
-            <p className="section-description">نحن هنا للإجابة على جميع استفساراتكم</p>
+      {/* Contact */}
+      <section id="contact" className="section bg-soft">
+        <div className="container">
+          <div className="section-head">
+            <span className="tag">اتصل بنا</span>
+            <h2>تواصل معنا</h2>
+            <p>نحن هنا للإجابة على جميع استفساراتكم</p>
           </div>
           <div className="contact-grid">
             <div className="contact-card">
-              <div className="contact-icon-wrapper">
-                <div className="contact-icon">📞</div>
-              </div>
+              <div className="contact-icon">📞</div>
               <h3>الهاتف</h3>
               <a href="tel:0912446494" className="contact-link">0912446494</a>
-              <p className="contact-note">نستقبل اتصالاتكم يومياً</p>
+              <p>نستقبل اتصالاتكم يومياً</p>
             </div>
             <div className="contact-card">
-              <div className="contact-icon-wrapper">
-                <div className="contact-icon">✉️</div>
-              </div>
+              <div className="contact-icon">✉️</div>
               <h3>البريد الإلكتروني</h3>
               <a href="mailto:info@teejan.ly" className="contact-link">info@teejan.ly</a>
-              <p className="contact-note">راسلنا في أي وقت</p>
+              <p>راسلنا في أي وقت</p>
             </div>
             <div className="contact-card">
-              <div className="contact-icon-wrapper">
-                <div className="contact-icon">📍</div>
-              </div>
+              <div className="contact-icon">📍</div>
               <h3>العنوان</h3>
-              <p className="contact-address">ليبيا - طرابلس - اللانشة</p>
-              <button onClick={openGoogleMaps} className="map-btn">
-                <span>عرض على الخريطة</span>
-                <span>🗺️</span>
-              </button>
+              <p className="address">ليبيا — طرابلس — اللانشة</p>
+              <a
+                href="https://maps.app.goo.gl/LxSQUJMdYNvt5FMm8"
+                target="_blank"
+                rel="noreferrer"
+                className="map-link"
+              >
+                🗺️ عرض على الخريطة
+              </a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Results CTA Section */}
-      <section className="results-cta-section">
-        <div className="cta-content">
+      {/* Results CTA */}
+      <section className="cta-section">
+        <div className="cta-inner">
           <div className="cta-icon">📊</div>
           <h2>استعلم عن نتائج الطلاب</h2>
           <p>يمكنك الآن الاطلاع على النتائج بسهولة</p>
-          <button onClick={goToResults} className="cta-btn">
-            <span>الدخول إلى صفحة النتائج</span>
-            <span className="btn-arrow">←</span>
+          <button onClick={() => navigate('/login')} className="cta-btn">
+            الدخول إلى صفحة النتائج ←
           </button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="home-footer">
-        <div className="footer-content">
-          <div className="footer-section">
-            <div className="footer-logo">
-              <img src={Logo} alt="Logo" className="logo-img" />
-              <span>مدرسة تيجان العلم</span>
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-grid">
+            <div>
+              <div className="footer-brand">
+                <img src={LOGO} alt="شعار المدرسة" />
+                <span>مدرسة تيجان العلم</span>
+              </div>
+              <p>نبني مستقبل أطفالنا بالعلم والمعرفة</p>
             </div>
-            <p>نبني مستقبل أطفالنا بالعلم والمعرفة</p>
+            <div>
+              <h4>روابط سريعة</h4>
+              <ul>
+                <li><a href="#home" onClick={() => scrollTo('home')}>الرئيسية</a></li>
+                <li><a href="#about" onClick={() => scrollTo('about')}>من نحن</a></li>
+                <li><a href="#levels" onClick={() => scrollTo('levels')}>المراحل التعليمية</a></li>
+                <li><a href="#contact" onClick={() => scrollTo('contact')}>تواصل معنا</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4>تواصل معنا</h4>
+              <ul>
+                <li>📞 0912446494</li>
+                <li>📍 ليبيا — طرابلس — اللانشة</li>
+              </ul>
+            </div>
           </div>
-          <div className="footer-section">
-            <h4>روابط سريعة</h4>
-            <ul>
-              <li><a href="#home" onClick={() => scrollToSection('home')}>الرئيسية</a></li>
-              <li><a href="#about" onClick={() => scrollToSection('about')}>من نحن</a></li>
-              <li><a href="#levels" onClick={() => scrollToSection('levels')}>المراحل التعليمية</a></li>
-              <li><a href="#contact" onClick={() => scrollToSection('contact')}>تواصل معنا</a></li>
-            </ul>
+          <div className="footer-bottom">
+            <p>© 2025 مدرسة تيجان العلم — جميع الحقوق محفوظة</p>
           </div>
-          <div className="footer-section">
-            <h4>تواصل معنا</h4>
-            <ul>
-              <li>📞  0912446494</li>
-              <li>📍 ليبيا - طرابلس - اللانشة</li>
-            </ul>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          <p>© 2025 مدرسة تيجان العلم - جميع الحقوق محفوظة</p>
         </div>
       </footer>
     </div>
-  );
+  )
 }
-
-export default Home;

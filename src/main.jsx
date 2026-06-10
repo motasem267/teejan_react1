@@ -15,5 +15,5 @@ createRoot(document.getElementById('root')).render(
         <Route path="/result" element={<Result />} />
       </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 )

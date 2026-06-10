@@ -1,195 +1,128 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation, Link, useNavigate } from 'react-router-dom'
 import './App.css'
-import { useEffect, useState } from 'react'
 
-const Logo = '/assets/logo.png'
+const LOGO = '/assets/logo.png'
+const API = 'https://dashboard.teejan.ly/api/students/national-id'
 
-function Result() {
-  const { search } = useLocation()
+function displayValue(val) {
+  if (val == null || val === '') return '—'
+  if (typeof val === 'object') return val.label || val.name || val.title || '—'
+  return val
+}
+
+function PeriodTotal({ periodId, totals, subjects }) {
+  const api = totals.find(t => t.period_id === periodId)
+  if (api) return { student: api.total_student_marks ?? 0, full: api.total_full_marks ?? 0 }
+  let student = 0, full = 0
+  subjects.forEach(sub => {
+    const p = sub.periods?.find(p => p.period_id === periodId)
+    if (p?.student_mark != null) student += p.student_mark
+    if (p?.full_mark != null) full += p.full_mark
+  })
+  return { student, full }
+}
+
+export default function Result() {
+  const location = useLocation()
   const navigate = useNavigate()
-  const params = new URLSearchParams(search)
-  const national = params.get('national') || ''
+  const national = new URLSearchParams(location.search).get('national') || ''
 
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [studentData, setStudentData] = useState(null)
-  const periods = studentData?.periods ?? []
-  const subjects = studentData?.subjects ?? []
-  const totals = studentData?.totals ?? []
 
-  const getDisplayValue = (value) => {
-    if (value == null || value === '') {
-      return '—'
-    }
-
-    if (typeof value === 'object') {
-      return value.label || value.name || value.title || value.value || '—'
-    }
-
-    return value
-  }
-
-  // التحقق من صحة الوصول إلى الصفحة
   useEffect(() => {
-    const authenticated = sessionStorage.getItem('authenticated')
-    const timestamp = sessionStorage.getItem('timestamp')
-    
-    // التحقق من وجود علامة المصادقة
-    if (!authenticated || authenticated !== 'true') {
-      // إعادة التوجيه إلى صفحة الدخول
+    const auth = sessionStorage.getItem('authenticated')
+    const ts = sessionStorage.getItem('timestamp')
+    if (auth !== 'true') { navigate('/login', { replace: true }); return }
+    if (ts && Date.now() - parseInt(ts) > 30 * 60 * 1000) {
+      sessionStorage.clear()
       navigate('/login', { replace: true })
-      return
-    }
-    
-    // التحقق من صلاحية الجلسة (30 دقيقة)
-    if (timestamp) {
-      const elapsed = Date.now() - parseInt(timestamp)
-      const thirtyMinutes = 30 * 60 * 1000
-      if (elapsed > thirtyMinutes) {
-        sessionStorage.removeItem('authenticated')
-        sessionStorage.removeItem('timestamp')
-        navigate('/login', { replace: true })
-        return
-      }
     }
   }, [navigate])
 
   useEffect(() => {
-    if (!national) {
-      setLoading(false)
-      setError('الرجاء إدخال رقم وطني')
-      return
-    }
-
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-       const response = await fetch(`https://dashboard.teejan.ly/api/students/national-id/${national}`)
-
-        
-        if (!response.ok) {
-          throw new Error('لم يتم العثور على بيانات لهذا الرقم الوطني')
-        }
-        
-        const result = await response.json()
-        
-        // التحقق من البنية: {success: true, data: {...}}
-        if (result.success && result.data) {
-          setStudentData(result.data)
-        } else {
-          throw new Error('بنية البيانات غير صحيحة')
-        }
-        setLoading(false)
-      } catch (err) {
-        setError(err.message)
-        setLoading(false)
-      }
-    }
-
-    fetchData()
+    if (!national) { setLoading(false); setError('الرجاء إدخال رقم وطني'); return }
+    setLoading(true)
+    fetch(`${API}/${national}`)
+      .then(r => { if (!r.ok) throw new Error('لم يتم العثور على بيانات لهذا الرقم الوطني'); return r.json() })
+      .then(res => {
+        if (res.success && res.data) setData(res.data)
+        else throw new Error('بنية البيانات غير صحيحة')
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
   }, [national])
-
-  const getPeriodTotal = (periodId) => {
-    const apiTotal = totals.find((total) => total.period_id === periodId)
-
-    if (apiTotal) {
-      return {
-        studentTotal: apiTotal.total_student_marks ?? 0,
-        fullTotal: apiTotal.total_full_marks ?? 0,
-      }
-    }
-
-    let studentTotal = 0
-    let fullTotal = 0
-
-    subjects.forEach((subject) => {
-      const periodGrade = subject.periods?.find((period) => period.period_id === periodId)
-
-      if (periodGrade?.student_mark != null) {
-        studentTotal += periodGrade.student_mark
-      }
-
-      if (periodGrade?.full_mark != null) {
-        fullTotal += periodGrade.full_mark
-      }
-    })
-
-    return { studentTotal, fullTotal }
-  }
-
-  const academicYearLabel = getDisplayValue(studentData?.academic_year)
-  const gradeLabel = getDisplayValue(studentData?.grade)
 
   if (loading) {
     return (
-      <div className="root-wrapper result-root" dir="rtl">
-        <div className="result-page">
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <p>جاري تحميل البيانات...</p>
-          </div>
-        </div>
+      <div className="status-page" dir="rtl">
+        <div className="status-card"><p>جاري تحميل البيانات...</p></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="root-wrapper result-root" dir="rtl">
-        <div className="result-page">
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <p style={{ color: '#d32f2f', marginBottom: '1rem' }}>{error}</p>
-            <Link to="/login" className="back-link">عودة إلى صفحة البحث</Link>
-          </div>
+      <div className="status-page" dir="rtl">
+        <div className="status-card">
+          <p className="error">{error}</p>
+          <Link to="/login" className="back-btn">عودة إلى صفحة البحث</Link>
         </div>
       </div>
     )
   }
 
-  if (!studentData) {
+  if (!data) {
     return (
-      <div className="root-wrapper result-root" dir="rtl">
-        <div className="result-page">
-          <div style={{ textAlign: 'center', padding: '2rem' }}>
-            <p>لا توجد بيانات للعرض</p>
-            <Link to="/login" className="back-link">عودة</Link>
-          </div>
+      <div className="status-page" dir="rtl">
+        <div className="status-card">
+          <p>لا توجد بيانات للعرض</p>
+          <Link to="/login" className="back-btn">عودة</Link>
         </div>
       </div>
     )
   }
+
+  const periods  = data.periods  ?? []
+  const subjects = data.subjects ?? []
+  const totals   = data.totals   ?? []
 
   return (
-    <div className="root-wrapper result-root" dir="rtl">
-      <div className="result-page">
+    <div className="result-root" dir="rtl">
+      <div className="result-wrap">
+
+        {/* Header */}
         <header className="result-header">
-          <img src={Logo} alt="شعار المدرسة" className="result-logo" />
-          <div className="school-name">
+          <img src={LOGO} alt="شعار المدرسة" />
+          <div>
             <h1>مدرسة تيـجان العـلـم</h1>
-            <p className="system-name">نظام اعلان نتائج الطلاب</p>
+            <p>نظام إعلان نتائج الطلاب</p>
           </div>
         </header>
 
-        <section className="student-info">
-          <div><strong>الاسم الكامل:</strong> {getDisplayValue(studentData.full_name)}</div>
-          <div><strong>الرقم الوطني:</strong> {getDisplayValue(studentData.national_id || national)}</div>
-          <div><strong>السنة الدراسية:</strong> {academicYearLabel}</div>
-          <div><strong>الصف:</strong> {gradeLabel}</div>
-        </section>
+        {/* Student info */}
+        <div className="student-info">
+          <div className="info-item"><strong>الاسم:</strong> {displayValue(data.full_name)}</div>
+          <div className="info-item"><strong>الرقم الوطني:</strong> {displayValue(data.national_id || national)}</div>
+          <div className="info-item"><strong>السنة الدراسية:</strong> {displayValue(data.academic_year)}</div>
+          <div className="info-item"><strong>الصف:</strong> {displayValue(data.grade)}</div>
+        </div>
 
-        <section className="table-wrap">
-          <table className="result-table" dir="rtl">
+        {/* Grades table */}
+        <div className="table-wrap">
+          <table className="result-table">
             <thead>
               <tr>
-                <th rowSpan={2} className="subject-col">المادة</th>
-                {periods.map((period) => (
-                  <th key={period.id} colSpan={2}>{getDisplayValue(period.name)}</th>
+                <th rowSpan={2} className="subject-col subject-cell">المادة</th>
+                {periods.map(p => (
+                  <th key={p.id} colSpan={2}>{displayValue(p.name)}</th>
                 ))}
               </tr>
               <tr>
-                {periods.map((period) => (
-                  <React.Fragment key={`sub-${period.id}`}>
+                {periods.map(p => (
+                  <React.Fragment key={p.id}>
                     <th>المتحصل عليها</th>
                     <th>الدرجة الكلية</th>
                   </React.Fragment>
@@ -197,76 +130,65 @@ function Result() {
               </tr>
             </thead>
             <tbody>
-              {subjects.map((subject) => (
-                <tr key={subject.subject_id}>
-                  <td className="subject-name">{getDisplayValue(subject.subject_name)}</td>
-                  {periods.map((period) => {
-                    const gradeData = subject.periods?.find((p) => p.period_id === period.id)
-                    const studentMark = gradeData?.student_mark
-                    const fullMark = gradeData?.full_mark
-                    
+              {subjects.map(sub => (
+                <tr key={sub.subject_id}>
+                  <td className="subject-cell">{displayValue(sub.subject_name)}</td>
+                  {periods.map(p => {
+                    const g = sub.periods?.find(x => x.period_id === p.id)
                     return (
-                      <React.Fragment key={period.id}>
-                        <td>
-                          <span className="cell-text">
-                            {studentMark != null ? studentMark : '-'}
-                          </span>
-                        </td>
-                        <td>
-                          <span className="cell-text">
-                            {fullMark != null ? fullMark : '-'}
-                          </span>
-                        </td>
+                      <React.Fragment key={p.id}>
+                        <td>{g?.student_mark ?? '—'}</td>
+                        <td>{g?.full_mark ?? '—'}</td>
                       </React.Fragment>
                     )
                   })}
                 </tr>
               ))}
+
+              {/* Total row */}
               {periods.length > 0 && (
-                <>
-                  <tr className="total-row">
-                    <td className="subject-name"><strong>المجموع</strong></td>
-                    {periods.map((period) => {
-                      const { studentTotal, fullTotal } = getPeriodTotal(period.id)
+                <tr className="total-row">
+                  <td className="subject-cell"><strong>المجموع</strong></td>
+                  {periods.map(p => {
+                    const t = PeriodTotal({ periodId: p.id, totals, subjects })
+                    return (
+                      <React.Fragment key={p.id}>
+                        <td><strong>{t.student}</strong></td>
+                        <td><strong>{t.full}</strong></td>
+                      </React.Fragment>
+                    )
+                  })}
+                </tr>
+              )}
 
-                      return (
-                        <React.Fragment key={`total-${period.id}`}>
-                          <td>
-                            <span className="cell-text"><strong>{studentTotal}</strong></span>
-                          </td>
-                          <td>
-                            <span className="cell-text"><strong>{fullTotal}</strong></span>
-                          </td>
-                        </React.Fragment>
-                      )
-                    })}
-                  </tr>
-                  <tr className="percentage-row">
-                    <td className="subject-name"><strong>النسبة</strong></td>
-                    {periods.map((period) => {
-                      const { studentTotal, fullTotal } = getPeriodTotal(period.id)
-                      const pct = fullTotal > 0 ? Math.round((studentTotal / fullTotal) * 100) : 0
-
-                      return (
-                        <td key={`pct-${period.id}`} colSpan={2}>
-                          <strong>{pct}%</strong>
-                        </td>
-                      )
-                    })}
-                  </tr>
-                </>
+              {/* Percentage row */}
+              {periods.length > 0 && (
+                <tr className="pct-row">
+                  <td className="subject-cell"><strong>النسبة %</strong></td>
+                  {periods.map(p => {
+                    const t = PeriodTotal({ periodId: p.id, totals, subjects })
+                    const pct = t.full > 0 ? ((t.student / t.full) * 100).toFixed(1) : '0.0'
+                    return (
+                      <td key={p.id} colSpan={2}>
+                        <strong>{pct}%</strong>
+                      </td>
+                    )
+                  })}
+                </tr>
               )}
             </tbody>
           </table>
-        </section>
-
-        <div className="result-actions">
-          <button className="print-btn" onClick={() => window.print()}>طباعة النتيجة</button>
-          <Link to="/login" className="back-link">عودة</Link>
         </div>
+
+        {/* Actions */}
+        <div className="result-actions">
+          <button className="print-btn" onClick={() => window.print()}>
+            🖨️ طباعة النتيجة
+          </button>
+          <Link to="/login" className="back-btn">← عودة</Link>
+        </div>
+
       </div>
     </div>
   )
 }
-
-export default Result
