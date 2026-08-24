@@ -175,6 +175,24 @@
 .info-item:hover { transform: translateY(-2px); }
 .info-item strong { color: #bd8b17; font-weight: 600; margin-left: 0.4rem; }
 
+/* Subjects sections */
+.subjects-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-family: 'Cairo', system-ui, Arial, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #5a3e00;
+  text-align: center;
+  margin: 0 0 0.7rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, rgba(189,139,23,0.15), rgba(242,196,107,0.15));
+  border-right: 4px solid #bd8b17;
+  border-radius: 8px;
+}
+
 /* Table */
 .table-wrap {
   overflow-x: auto;
@@ -301,16 +319,74 @@
 .status-card p { font-size: 1.1rem; color: #555; margin-bottom: 1.2rem; }
 .status-card .error { color: #d32f2f; }
 
+/* Print timestamp — hidden on screen, shown only when printing */
+.print-timestamp {
+  display: none;
+}
+
 /* Print */
+@page {
+  size: A4 portrait;
+  margin: 6mm;
+}
+
 @media print {
+  html, body { height: auto; }
+
   .result-actions { display: none !important; }
-  .result-root { background: #fff; padding: 0; }
-  .result-wrap { max-width: 100%; }
+  .result-root { background: #fff; padding: 0; min-height: auto; }
+  .result-wrap {
+    max-width: 100%;
+    animation: none;
+    min-height: 283mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
   .result-header {
     background: #f2c46b !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .result-header img { height: 55px; }
+  .result-header h1 { font-size: 1.3rem; }
+  .result-header p { font-size: 0.9rem; }
+
+  .student-info {
+    padding: 1rem;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+  .info-item { padding: 0.7rem 0.9rem; font-size: 0.95rem; }
+
+  .subjects-section {
+    margin-bottom: 1.5rem;
+    page-break-inside: avoid;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    padding: 0.6rem 1.1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .table-wrap { box-shadow: none; page-break-inside: avoid; }
+
+  .result-table { font-size: 13px; }
+  .result-table th,
+  .result-table td { padding: 0.5rem 0.6rem; }
+  .total-row td,
+  .pct-row td { font-size: 14px; }
+
+  .print-timestamp {
+    display: block;
+    text-align: left;
+    font-size: 0.9rem;
+    color: #555;
+    margin-top: 1rem;
   }
 
   .total-row td {
@@ -324,6 +400,4 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-
-  .table-wrap { box-shadow: none; }
 }

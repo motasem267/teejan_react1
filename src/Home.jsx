@@ -83,6 +83,7 @@ export default function Home() {
             <li><a href="#levels" onClick={() => scrollTo('levels')}>المراحل التعليمية</a></li>
             <li><a href="#gallery" onClick={() => scrollTo('gallery')}>أطفالنا</a></li>
             <li><a href="#contact" onClick={() => scrollTo('contact')}>تواصل معنا</a></li>
+            <li><a onClick={() => navigate('/curricula')}>المناهج</a></li>
             <li>
               <button className="nav-results-btn" onClick={() => navigate('/login')}>
                 النتائج
